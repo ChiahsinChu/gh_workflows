@@ -98,6 +98,54 @@ Comprehensive Python testing workflow with GPU support and code coverage reporti
 
 ---
 
+### 4. Publish to PyPI (`release_pypi.yml`) [[source]](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
+
+Automated Python package publishing workflow for distributing packages to both PyPI and TestPyPI.
+
+**Triggers:**
+- `push` to `master` branch
+
+**Features:**
+- Builds Python distribution packages (binary wheel and source tarball)
+- Publishes to PyPI only on tag pushes (for production releases)
+- Publishes to TestPyPI on every push to master (for testing)
+- Uses GitHub Actions artifacts to store and reuse distribution packages
+- Supports trusted publishing with OIDC (no API tokens required)
+- Separate environments for PyPI and TestPyPI
+
+**Required Secrets:**
+- None (uses trusted publishing with OIDC)
+
+**Configuration:**
+- Requires PyPI trusted publishing setup:
+  1. Create a pending publisher in your PyPI project settings
+  2. Configure GitHub Actions OIDC trust relationship
+  3. Add `pypi` and `testpypi` environments in your GitHub repository settings
+- Replace `<package-name>` in the workflow with your actual PyPI project name
+
+**Usage:**
+1. Set up trusted publishing on PyPI:
+   - Go to your PyPI project's publishing settings
+   - Add a new publisher with your GitHub repository as the trusted publisher
+   - Configure the workflow name (`publish-to-pypi`) and environment name (`pypi`)
+2. Create `pypi` and `testpypi` environments in your GitHub repository settings (Settings → Environments)
+3. Place `release_pypi.yml` in your repository's `.github/workflows/` directory
+4. For production releases, push a tag (e.g., `git tag v1.0.0 && git push origin v1.0.0`)
+5. For testing, simply push to the `master` branch to publish to TestPyPI
+
+**Manual upload:**
+
+```bash
+pip install build twine
+cd <package>
+python -m build
+twine check dist/*
+twine upload -r testpypi dist/* 
+twine upload dist/*
+```
+
+---
+
 ## Required Secrets Summary
 
 | Secret | Used By | Description |
